@@ -1,0 +1,80 @@
+version: "4.1"
+name: ModbusSlave_8G1K08A
+type: C51
+deviceName: null
+packDir: null
+srcDirs: []
+virtualFolder:
+  name: <virtual_root>
+  files:
+    - path: src/crc16.c
+    - path: src/crc16.h
+    - path: src/eeprom.c
+    - path: src/eeprom.h
+    - path: src/main.c
+    - path: src/modbus.c
+    - path: src/modbus.h
+    - path: src/uart.c
+    - path: src/uart.H
+    - path: inc/reg52.h
+    - path: src/18B20.c
+    - path: src/18B20.h
+    - path: src/cap.c
+    - path: src/cap.h
+    - path: src/delay.c
+    - path: src/delay.h
+  folders: []
+dependenceList: []
+outDir: build
+miscInfo:
+  uid: 6420ae1a713f62e1659b4f3810bddb5e
+targets:
+  Debug:
+    cppPreprocessAttrs:
+      defineList: []
+      incList:
+        - src
+        - inc
+      libList:
+        - c:/Keil_v5/C51/INC
+        - c:/msys64/mingw64/include
+        - d:/SDCC
+    excludeList: []
+    toolchain: SDCC
+    toolchainConfigMap:
+      Keil_C51:
+        options:
+          version: 2
+          afterBuildTasks: []
+          asm-compiler: {}
+          beforeBuildTasks: []
+          c/cpp-compiler:
+            optimization-level: level-8
+            optimization-type: SPEED
+          global:
+            ram-mode: SMALL
+            rom-mode: LARGE
+          linker:
+            output-format: elf
+            remove-unused: true
+      SDCC:
+        options:
+          version: 3
+          afterBuildTasks: []
+          asm-compiler: {}
+          beforeBuildTasks: []
+          c/cpp-compiler:
+            language-c: c99
+          global:
+            device: mcs51
+            optimize-type: speed
+            use-non-free: false
+          linker:
+            $mainFileName: main
+            output-format: hex
+    uploadConfigMap:
+      Custom:
+        bin: ""
+        commandLine: ""
+        eraseChipCommand: ""
+    uploader: Custom
