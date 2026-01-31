@@ -7,6 +7,9 @@
 #define MODBUS_RX_BUF_SIZE   128   // 环形缓冲区大小
 #define MODBUS_FRAME_MAX     64    // 单帧最大长度
 #define RTU_FRAME_GAP_MS     5     // 静默时间阈值（ms）
+#define REG_VALVE_CTRL       2   // 电磁阀控制寄存器
+
+__sbit __at(0xB0+3)          SV; // P3.3 连接到 电磁阀 控制线,Solenoid Valve, 高电平导通,低电平断开.
 
 void Modbus_Init(void);
 

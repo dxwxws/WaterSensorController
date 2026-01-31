@@ -1,8 +1,8 @@
 #include "uart.h"
+#include "18B20.h"
 #include "modbus.h"
 #include "eeprom.h"
 #include "cap.h"
-#include "18B20.h"
 
 // DS18B20 状态机
 typedef enum {
@@ -122,7 +122,7 @@ void main(void)
         {
             cap_measure_timer = CAP_MEASURE_INTERVAL_MS;  // 重新装载定时器
             uint16_t cap_time = cap_measure_avg(5);  // 测量5次取平均（增加采样次数）
-            HoldingReg[2] = cap_time;  // 存储原始电容时间值（调试用）
+            // HoldingReg[2] = cap_time;  // 存储原始电容时间值（调试用）
             if (cap_time != 0xFFFF) {
                 uint8_t level = water_level_get_percent(cap_time);
                 
