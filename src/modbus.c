@@ -23,7 +23,7 @@ volatile bit     rtu_receiving   = 0;   // 当前是否处于接收过程
 volatile bit     frame_ready     = 0;   // 有完整帧待处理
 
 // 寄存器表
-__xdata uint16_t HoldingReg[10];   // 0:水位  1:温度 等
+__xdata uint16_t HoldingReg[HOLDING_REG_SIZE];   // 0:水位  1:温度 等
 
 // 调试计数器
 volatile uint16_t modbus_rx_count = 0;
@@ -57,6 +57,9 @@ void Modbus_Init(void)
     rtu_receiving    = 0;
     frame_ready      = 0;
 
+    // 加载 EEPROM 中的参数
+    HoldingReg[HR_T_AIR] = g_t_air;
+    HoldingReg[HR_T_FULL] = g_t_full;
     HoldingReg[2] = 0;  // 初始化电磁阀控制寄存器为0（关闭）
     SV = 0; // 初始关闭电磁阀
 }
@@ -253,12 +256,6 @@ void Modbus_Read_Holding_Register(uint8_t *frame, uint8_t len)
             // 读取波特率索引
             val = g_baudrate_index;
         }
-        // else if (current_addr < 10)
-        // {
-        //     // 普通寄存器 - 直接从HoldingReg读取
-        //     // 寄存器0（水位）和寄存器1（温度）由main.c主循环定期更新
-        //     val = HoldingReg[current_addr];
-        // }
         else
         {
             // 非法地址
@@ -300,6 +297,25 @@ void Modbus_Send_Error(uint8_t func, uint8_t err)
     UART_SendBytes(sendBuf, idx);
 }
 
+void HoldingReg_WriteCallback(uint16_t addr, uint16_t value)
+{
+    HoldingReg[addr] = value;
+
+    if (addr == HR_T_AIR)
+    {
+        g_cfg.t_air = value;
+        g_t_air = value;
+        EEPROM_SaveAll();
+    }
+    else if (addr == HR_T_FULL)
+    {
+        g_cfg.t_full = value;
+        g_t_full = value;
+        EEPROM_SaveAll();
+    }
+}
+
+
 //--------------------- 写单个寄存器 0x06 ---------------------
 void Modbus_Write_Single_Register(uint8_t *frame, uint8_t len)
 {
@@ -315,7 +331,7 @@ void Modbus_Write_Single_Register(uint8_t *frame, uint8_t len)
 
     if (addr == REG_VALVE_CTRL)
     {
-        // 普通寄存器写入
+        // 写入寄存器（不需要回调）
         HoldingReg[addr] = value;
         // 电磁阀控制寄存器写入
         if (value == 0)
@@ -338,12 +354,12 @@ void Modbus_Write_Single_Register(uint8_t *frame, uint8_t len)
 
     else if (addr < 10)
     {
-        // 普通寄存器写入
-        HoldingReg[addr] = value;
-        // 直接回显请求帧表示成功
+        HoldingReg_WriteCallback(addr, value);   // ★★★ 调用回调 ★★★
+
         for (uint8_t i = 0; i < len; i++)
             UART_SendByte(frame[i]);
     }
+
 
     // 判断是否为配置寄存器
    else if (addr == 0x07D0)
@@ -384,14 +400,6 @@ void Modbus_Write_Single_Register(uint8_t *frame, uint8_t len)
             Modbus_Send_Error(0x06, 0x03); // 非法数据值
         }
     }
-    // else if (addr < 10)
-    // {
-    //     // 普通寄存器写入
-    //     HoldingReg[addr] = value;
-    //     // 直接回显请求帧表示成功
-    //     for (uint8_t i = 0; i < len; i++)
-    //         UART_SendByte(frame[i]);
-    // }
     else
     {
         Modbus_Send_Error(0x06, 0x02); // 非法地址

@@ -9,6 +9,12 @@
 #define RTU_FRAME_GAP_MS     5     // 静默时间阈值（ms）
 #define REG_VALVE_CTRL       2   // 电磁阀控制寄存器
 
+#define HOLDING_REG_SIZE 10
+
+#define HR_T_AIR   (HOLDING_REG_SIZE - 2)
+#define HR_T_FULL  (HOLDING_REG_SIZE - 1)
+
+
 __sbit __at(0xB0+3)          SV; // P3.3 连接到 电磁阀 控制线,Solenoid Valve, 高电平导通,低电平断开.
 
 void Modbus_Init(void);
@@ -25,11 +31,11 @@ void Modbus_Task(void);
 void Modbus_Read_Holding_Register(uint8_t *frame, uint8_t len);
 void Modbus_Write_Single_Register(uint8_t *frame, uint8_t len);
 void Modbus_Send_Error(uint8_t func, uint8_t err);
+void HoldingReg_WriteCallback(uint16_t addr, uint16_t value);
 // void UART_SendHex(uint8_t byte);
 
 extern __xdata uint16_t HoldingReg[];
 extern volatile uint16_t modbus_rx_count;
 extern volatile uint16_t msTicks;
-extern volatile uint8_t need_reset;
 
 #endif
