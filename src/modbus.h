@@ -27,6 +27,7 @@ void Modbus_OnTimer1ms(void);
 
 // 主循环中调用，用于处理完整 Modbus 帧（非阻塞）
 void Modbus_Task(void);
+uint8_t Modbus_HasFrameReady(void);
 
 void Modbus_Read_Holding_Register(uint8_t *frame, uint8_t len);
 void Modbus_Write_Single_Register(uint8_t *frame, uint8_t len);

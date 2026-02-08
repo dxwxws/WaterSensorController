@@ -7,6 +7,7 @@
 
 #define TRUE  1
 #define FALSE 0
+#define MODBUS_DEBUG 0
 
 // 环形缓冲区（串口“DMA 接收缓存”）
 __xdata uint8_t modbus_rx_buf[MODBUS_RX_BUF_SIZE];
@@ -162,7 +163,9 @@ void Modbus_Task(void)
 
     if (crcCalc != crcRecv)
     {
+    #if MODBUS_DEBUG
         UART_SendBytes((uint8_t*)"ERR:CRC\r\n", 9);
+    #endif
         modbus_frame_len = 0;
         return; // CRC 错误
     }
@@ -171,7 +174,9 @@ void Modbus_Task(void)
     // 地址判断
     if (modbus_frame_buf[0] != g_slave_id)
     {
+    #if MODBUS_DEBUG
         UART_SendBytes((uint8_t*)"IGN:ADDR\r\n", 10);
+    #endif
         modbus_frame_len = 0;
         return; // 不是发给我的
     }
@@ -190,7 +195,9 @@ void Modbus_Task(void)
                 break;
 
             default:
+            #if MODBUS_DEBUG
                 UART_SendBytes((uint8_t*)"ERR:FUNC\r\n", 10);
+            #endif
                 Modbus_Send_Error(func, 0x01); // 不支持的功能码
                 break;
         }
@@ -202,6 +209,11 @@ void Modbus_Task(void)
 
 }
 
+uint8_t Modbus_HasFrameReady(void)
+{
+    return frame_ready ? 1 : 0;
+}
+
 //--------------------- 读保持寄存器 0x03 ---------------------
 void Modbus_Read_Holding_Register(uint8_t *frame, uint8_t len)
 {
@@ -209,7 +221,9 @@ void Modbus_Read_Holding_Register(uint8_t *frame, uint8_t len)
 
     if (len < 8)
     {
+    #if MODBUS_DEBUG
         UART_SendBytes((uint8_t*)"ERR:PARAM\r\n", 11);
+    #endif
         Modbus_Send_Error(0x03, 0x02);
         return;
     }
@@ -220,7 +234,9 @@ void Modbus_Read_Holding_Register(uint8_t *frame, uint8_t len)
     // 检查地址范围：支持0-9和0x07D0-0x07D1
     if (num == 0 || num > 64)
     {
+    #if MODBUS_DEBUG
         UART_SendBytes((uint8_t*)"ERR:PARAM\r\n", 11);
+    #endif
         Modbus_Send_Error(0x03, 0x02);
         return;
     }
@@ -259,7 +275,9 @@ void Modbus_Read_Holding_Register(uint8_t *frame, uint8_t len)
         else
         {
             // 非法地址
+        #if MODBUS_DEBUG
             UART_SendBytes((uint8_t*)"ERR:ADDR\r\n", 10);
+        #endif
             Modbus_Send_Error(0x03, 0x02);
             return;
         }
@@ -321,7 +339,9 @@ void Modbus_Write_Single_Register(uint8_t *frame, uint8_t len)
 {
     if (len < 8)
     {
+    #if MODBUS_DEBUG
         UART_SendBytes((uint8_t*)"ERR:PARAM\r\n", 11);
+    #endif
         Modbus_Send_Error(0x06, 0x02);
         return;
     }

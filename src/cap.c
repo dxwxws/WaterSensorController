@@ -3,6 +3,7 @@
 #include "delay.h"
 #include "cap.h"
 #include "eeprom.h"
+#include "modbus.h"
 
 extern eeprom_cfg_t g_cfg;
 
@@ -40,6 +41,13 @@ uint16_t cap_measure(void)  // 测量一次电容充电时间，单位：相对�
         count++;
         if (count >= 0xFFFE) {
             return 0xFFFF;   // 超时
+        }
+        if ((count & 0x3F) == 0)
+        {
+            if (Modbus_HasFrameReady())
+            {
+                return 0xFFFF;
+            }
         }
     }
 

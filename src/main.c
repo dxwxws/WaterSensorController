@@ -77,6 +77,8 @@ void main(void)
 
     while (1)
     {
+        Modbus_Task();         // 优先处理 Modbus 帧，降低响应延迟
+
         // DS18B20 温度测量状态机（非阻塞）
         switch (ds18b20_state) {
             case DS18B20_IDLE:
