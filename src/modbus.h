@@ -14,6 +14,9 @@
 #define HR_T_AIR   (HOLDING_REG_SIZE - 2)
 #define HR_T_FULL  (HOLDING_REG_SIZE - 1)
 
+#define CMD_CAL_AIR   0x07D2
+#define CMD_CAL_FULL  0x07D3
+
 
 __sbit __at(0xB0+3)          SV; // P3.3 连接到 电磁阀 控制线,Solenoid Valve, 高电平导通,低电平断开.
 

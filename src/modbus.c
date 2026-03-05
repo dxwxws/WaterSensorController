@@ -420,6 +420,42 @@ void Modbus_Write_Single_Register(uint8_t *frame, uint8_t len)
             Modbus_Send_Error(0x06, 0x03); // 非法数据值
         }
     }
+    else if (addr == CMD_CAL_AIR)
+    {
+        if (value == 1)
+        {
+            uint16_t raw = cap_measure_avg(20);  // 测 20 次取平均
+            g_cfg.t_air = raw;
+            EEPROM_SaveAll();
+            HoldingReg[HR_T_AIR] = 0; // 自动清零
+            // 直接回显请求帧表示成功
+            for (uint8_t i = 0; i < len; i++)
+                UART_SendByte(frame[i]);
+        }
+        else
+        {
+            Modbus_Send_Error(0x06, 0x03);
+        }
+    }
+
+    else if (addr == CMD_CAL_FULL)
+    {
+        if (value == 1)
+        {
+            uint16_t raw = cap_measure_avg(20);
+            g_cfg.t_full = raw;
+            EEPROM_SaveAll();
+            HoldingReg[HR_T_FULL] = 0;
+            // 直接回显请求帧表示成功
+            for (uint8_t i = 0; i < len; i++)
+                UART_SendByte(frame[i]);
+        }
+        else
+        {
+            Modbus_Send_Error(0x06, 0x03);
+        }
+    }
+
     else
     {
         Modbus_Send_Error(0x06, 0x02); // 非法地址
