@@ -40,6 +40,8 @@ targets:
         - c:/msys64/mingw64/include
         - d:/SDCC
     excludeList: []
+    settings:
+      debugger: unknown
     toolchain: SDCC
     toolchainConfigMap:
       Keil_C51:
